@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nistula · Message Handler</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #11141b;
+      --panel-2: #161a23;
+      --border: #232836;
+      --text: #e6e9ef;
+      --muted: #8a93a6;
+      --accent: #c9a86a;          /* warm sand */
+      --accent-2: #6ec1a1;        /* mint */
+      --danger: #ef6f6c;
+      --warn: #e8b86a;
+      --ok: #6ec1a1;
+      --code-bg: #0f1218;
+      --shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+                 font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+                 font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+    header {
+      padding: 28px 40px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.2px; }
+    header .sub { color: var(--muted); font-size: 12.5px; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 40px 64px;
+           display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 22px; box-shadow: var(--shadow);
+    }
+    .card h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; letter-spacing: 0.3px;
+               text-transform: uppercase; color: var(--muted); }
+    .card p.help { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px;
+            text-transform: uppercase; letter-spacing: 0.4px; }
+    select, input, textarea {
+      width: 100%; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      font: inherit; outline: none; transition: border-color .15s;
+    }
+    select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { min-height: 100px; resize: vertical; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      background: var(--accent); color: #1a1410; border: none; border-radius: 8px;
+      padding: 10px 16px; font: inherit; font-weight: 600; cursor: pointer;
+      transition: transform .05s, filter .15s;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(1px); }
+    button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    button.ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .preset {
+      font-size: 12px; padding: 6px 10px; border: 1px solid var(--border);
+      border-radius: 999px; background: var(--panel-2); color: var(--muted); cursor: pointer;
+    }
+    .preset:hover { color: var(--text); border-color: var(--accent); }
+    .response {
+      background: var(--code-bg); border-radius: 10px; padding: 16px;
+      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 12.5px;
+      white-space: pre-wrap; word-break: break-word; min-height: 200px;
+      color: #cfd5e1; border: 1px solid var(--border);
+    }
+    .meta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin: 14px 0 8px; }
+    .pill { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--panel-2);
+            border: 1px solid var(--border); color: var(--muted); }
+    .pill.ok { color: var(--ok); border-color: rgba(110,193,161,0.4); }
+    .pill.warn { color: var(--warn); border-color: rgba(232,184,106,0.4); }
+    .pill.danger { color: var(--danger); border-color: rgba(239,111,108,0.45); }
+    .reply-box { background: var(--panel-2); border-left: 3px solid var(--accent);
+                 padding: 12px 14px; border-radius: 0 8px 8px 0; margin-top: 10px;
+                 white-space: pre-wrap; }
+    .footer { color: var(--muted); font-size: 12px; margin-top: 24px; text-align: center; }
+    .bar { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .bar .track { flex: 1; height: 6px; background: var(--panel-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+    .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .bar .val { width: 44px; text-align: right; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      header { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Nistula · Guest Message Handler</h1>
+      <div class="sub">POST /webhook/message · live demo</div>
+    </div>
+    <div class="sub"><a href="/docs">OpenAPI docs →</a></div>
+  </header>
+
+  <main>
+    <!-- Input -->
+    <section class="card">
+      <h2>Inbound Message</h2>
+      <p class="help">Fill the payload below, or pick a preset. The webhook will normalise it, classify the intent, draft a reply via Claude, and return a confidence-scored action.</p>
+
+      <div class="preset-row">
+        <button class="preset" data-preset="availability">Pre-sales · availability</button>
+        <button class="preset" data-preset="pricing">Pricing</button>
+        <button class="preset" data-preset="checkin">Check-in / WiFi</button>
+        <button class="preset" data-preset="special">Special request</button>
+        <button class="preset" data-preset="complaint">Complaint (3am)</button>
+        <button class="preset" data-preset="general">General enquiry</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Source</label>
+          <select id="source">
+            <option>whatsapp</option>
+            <option>booking_com</option>
+            <option>airbnb</option>
+            <option>instagram</option>
+            <option>direct</option>
+          </select>
+        </div>
+        <div>
+          <label>Guest name</label>
+          <input id="guest_name" value="Rahul Sharma" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Booking ref</label>
+          <input id="booking_ref" value="NIS-2024-0891" />
+        </div>
+        <div>
+          <label>Property id</label>
+          <input id="property_id" value="villa-b1" />
+        </div>
+      </div>
+      <label>Timestamp (ISO 8601)</label>
+      <input id="timestamp" value="2026-05-05T10:30:00Z" />
+      <label>Message</label>
+      <textarea id="message">Is the villa available from April 20 to 24? What is the rate for 2 adults?</textarea>
+
+      <div class="actions">
+        <button id="send">Send to /webhook/message</button>
+        <button class="ghost" id="copy">Copy payload</button>
+      </div>
+    </section>
+
+    <!-- Output -->
+    <section class="card">
+      <h2>Handler Response</h2>
+      <div class="meta">
+        <span id="status" class="pill">idle</span>
+        <span id="latency" class="pill">—</span>
+        <span id="action" class="pill">action: —</span>
+        <span id="qtype" class="pill">query_type: —</span>
+      </div>
+
+      <label>Drafted reply</label>
+      <div class="reply-box" id="reply">—</div>
+
+      <label>Confidence</label>
+      <div class="bar"><div class="track"><div class="fill" id="conf-bar" style="width:0%"></div></div><div class="val" id="conf-val">—</div></div>
+
+      <label>Raw JSON</label>
+      <div class="response" id="raw">—</div>
+    </section>
+  </main>
+
+  <div class="footer">Nistula technical assessment · built with FastAPI + Claude</div>
+
+  <script>
+    const PRESETS = {
+      availability: {
+        source: "whatsapp", guest_name: "Rahul Sharma",
+        message: "Is the villa available from April 20 to 24? What is the rate for 2 adults?",
+        booking_ref: "NIS-2024-0891", property_id: "villa-b1"
+      },
+      pricing: {
+        source: "booking_com", guest_name: "Anjali Mehta",
+        message: "What's the total cost for 6 guests staying 3 nights at Villa B1?",
+        booking_ref: "", property_id: "villa-b1"
+      },
+      checkin: {
+        source: "whatsapp", guest_name: "David Kim",
+        message: "What time can we check in tomorrow and what's the WiFi password?",
+        booking_ref: "NIS-2024-1102", property_id: "villa-b1"
+      },
+      special: {
+        source: "direct", guest_name: "Priya Iyer",
+        message: "Can you arrange an airport transfer from GOI for 4 people at 6pm on Friday?",
+        booking_ref: "NIS-2024-1131", property_id: "villa-b1"
+      },
+      complaint: {
+        source: "whatsapp", guest_name: "Vikram Bose",
+        message: "There is no hot water and we have guests arriving for breakfast in 4 hours. This is unacceptable. I want a refund for tonight.",
+        booking_ref: "NIS-2024-1150", property_id: "villa-b1"
+      },
+      general: {
+        source: "instagram", guest_name: "Sneha Rao",
+        message: "Do you allow pets? Is there parking on site?",
+        booking_ref: "", property_id: "villa-b1"
+      },
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const fields = ["source","guest_name","booking_ref","property_id","message"];
+
+    document.querySelectorAll(".preset").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const p = PRESETS[btn.dataset.preset];
+        for (const f of fields) if (f in p) $(f).value = p[f];
+        $("timestamp").value = new Date().toISOString();
+      });
+    });
+
+    function buildPayload() {
+      return {
+        source: $("source").value,
+        guest_name: $("guest_name").value,
+        message: $("message").value,
+        timestamp: $("timestamp").value,
+        booking_ref: $("booking_ref").value || null,
+        property_id: $("property_id").value || null,
+      };
+    }
+
+    $("copy").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(JSON.stringify(buildPayload(), null, 2));
+      const s = $("status"); s.textContent = "payload copied"; s.className = "pill ok";
+      setTimeout(() => { s.textContent = "idle"; s.className = "pill"; }, 1200);
+    });
+
+    $("send").addEventListener("click", async () => {
+      const status = $("status"), latency = $("latency");
+      status.textContent = "sending…"; status.className = "pill warn";
+      latency.textContent = "—";
+      $("reply").textContent = "…";
+      $("raw").textContent = "…";
+      $("conf-bar").style.width = "0%"; $("conf-val").textContent = "—";
+
+      const t0 = performance.now();
+      try {
+        const r = await fetch("/webhook/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildPayload()),
+        });
+        const dt = (performance.now() - t0).toFixed(0);
+        latency.textContent = dt + " ms";
+        const body = await r.json();
+
+        if (!r.ok) {
+          status.textContent = "error " + r.status; status.className = "pill danger";
+          $("reply").textContent = body.detail || "(no detail)";
+          $("raw").textContent = JSON.stringify(body, null, 2);
+          return;
+        }
+
+        status.textContent = "ok"; status.className = "pill ok";
+        $("reply").textContent = body.drafted_reply || "(empty)";
+        $("raw").textContent = JSON.stringify(body, null, 2);
+
+        const c = body.confidence_score ?? 0;
+        $("conf-bar").style.width = (c * 100).toFixed(0) + "%";
+        $("conf-val").textContent = c.toFixed(2);
+
+        const action = body.action || "—";
+        const actEl = $("action");
+        actEl.textContent = "action: " + action;
+        actEl.className = "pill " + (action === "auto_send" ? "ok" :
+                                     action === "agent_review" ? "warn" : "danger");
+
+        $("qtype").textContent = "query_type: " + (body.query_type || "—");
+      } catch (e) {
+        status.textContent = "network error"; status.className = "pill danger";
+        $("raw").textContent = String(e);
+      }
+    });
+
+    // Auto-fill a fresh timestamp on load
+    $("timestamp").value = new Date().toISOString();
+  </script>
+</body>
+</html>
