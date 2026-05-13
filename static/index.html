@@ -18,30 +18,30 @@
        ============================================================ */
 
     :root[data-theme="light"] {
-      /* Backgrounds */
-      --bg-1: #F8FAFC;                  /* main page */
-      --bg-2: #F1F5F9;                  /* secondary surface, raised chips */
+      /* Backgrounds — soft sage-tinted neutral for contrast with mint accent */
+      --bg-1: #FAFCF7;                  /* main page — barely-there mint hint */
+      --bg-2: #F1F7EB;                  /* secondary surface */
       /* Card surfaces */
-      --surface: #FFFFFF;               /* card bg */
+      --surface: #FFFFFF;               /* clean white cards */
       --surface-solid: #FFFFFF;
-      --surface-2: #F1F5F9;             /* preset chips, badges */
-      --surface-elev: #FFFFFF;          /* reply-box, elevated panels */
-      /* Borders */
-      --border: #E2E8F0;
-      --border-strong: #CBD5E1;
-      /* Text */
-      --text: #0F172A;
-      --text-muted: #475569;
-      --text-dim: #64748B;
-      --text-placeholder: #94A3B8;
-      /* Accent (amber, used sparingly) */
-      --accent: #F59E0B;
-      --accent-2: #D97706;
-      --accent-soft: #FEF3C7;
+      --surface-2: #F1F7EB;             /* preset chips, badges */
+      --surface-elev: #FFFFFF;          /* reply-box */
+      /* Borders — sage hairlines */
+      --border: #D9E5CE;
+      --border-strong: #BAC9AC;
+      /* Text — deep forest-tinted near-black */
+      --text: #0F1F0A;
+      --text-muted: #4A5942;
+      --text-dim: #6B7B62;
+      --text-placeholder: #97A38F;
+      /* Accent — green family centred on the requested #E9FFDB */
+      --accent: #4A8C2F;                /* readable forest green on white */
+      --accent-2: #3D7A28;              /* hover */
+      --accent-soft: #E9FFDB;           /* THE requested colour — soft pill bg */
       /* Inputs */
       --input-bg: #FFFFFF;
-      --input-border: #CBD5E1;
-      --focus-ring: rgba(245, 158, 11, 0.18);
+      --input-border: #C8D6BD;
+      --focus-ring: rgba(74, 140, 47, 0.20);
       /* Semantic — paired text + bg for badges/pills */
       --ok-text: #166534;
       --ok-bg: #DCFCE7;
@@ -49,54 +49,54 @@
       --warn-bg: #FEF3C7;
       --danger-text: #991B1B;
       --danger-bg: #FEE2E2;
-      /* Status dot (hero eyebrow), used very sparingly */
+      /* Status dot */
       --mint: #16A34A;
       --rose: #DC2626;
       --warn: #EA580C;
-      /* Code surface */
-      --code-bg: #F8FAFC;
-      --code-border: #E2E8F0;
-      /* Elevation system — soft, layered */
-      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-      --shadow-md: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-      --shadow-lg: 0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 24px -8px rgba(15, 23, 42, 0.08);
-      --shadow-glow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
-      --shadow-btn: 0 1px 2px rgba(217, 119, 6, 0.18), 0 2px 6px rgba(217, 119, 6, 0.12);
-      --shadow-inset: inset 0 1px 2px rgba(15, 23, 42, 0.04);
-      /* Whisper of ambient warmth — almost invisible, just for life */
-      --gradient-bg: radial-gradient(ellipse 70% 30% at 50% 0%, rgba(245, 158, 11, 0.045), transparent 70%);
-      --gradient-text: linear-gradient(135deg, #D97706 0%, #92400E 100%);
-      --gradient-accent: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+      /* Code surface — subtle sage tint */
+      --code-bg: #F6FBF1;
+      --code-border: #D9E5CE;
+      /* Elevation system — soft, green-tinted */
+      --shadow-sm: 0 1px 2px rgba(15, 31, 10, 0.04);
+      --shadow-md: 0 1px 3px rgba(15, 31, 10, 0.06), 0 1px 2px rgba(15, 31, 10, 0.04);
+      --shadow-lg: 0 1px 3px rgba(15, 31, 10, 0.05), 0 8px 24px -8px rgba(15, 31, 10, 0.09);
+      --shadow-glow: 0 1px 2px rgba(15, 31, 10, 0.06), 0 1px 3px rgba(15, 31, 10, 0.04);
+      --shadow-btn: 0 1px 2px rgba(74, 140, 47, 0.22), 0 2px 6px rgba(74, 140, 47, 0.16);
+      --shadow-inset: inset 0 1px 2px rgba(15, 31, 10, 0.04);
+      /* Light ambient mint at the top — aesthetic, not loud */
+      --gradient-bg: radial-gradient(ellipse 75% 35% at 50% 0%, rgba(168, 220, 140, 0.20), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #5BA63E 0%, #2D6A1F 100%);
+      --gradient-accent: linear-gradient(180deg, #5BA63E 0%, #3D7A28 100%);
     }
 
     :root[data-theme="dark"] {
-      /* Backgrounds */
-      --bg-1: #020617;                  /* slate-950, main page */
-      --bg-2: #0F172A;                  /* slate-900, secondary */
+      /* Backgrounds — deep forest-tinted near-black, contrast with mint */
+      --bg-1: #0A140A;                  /* main page */
+      --bg-2: #0F1A0F;                  /* secondary */
       /* Card surfaces */
-      --surface: #111827;               /* card bg — gray-900, sits above bg-1 */
-      --surface-solid: #111827;
-      --surface-2: #1E293B;             /* slate-800, raised chips/pills */
-      --surface-elev: #1E293B;          /* reply-box, elevated panels */
-      /* Borders */
-      --border: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.16);
-      /* Text */
-      --text: #F8FAFC;
-      --text-muted: #CBD5E1;
-      --text-dim: #94A3B8;
-      --text-placeholder: #64748B;
-      /* Accent (amber, used sparingly) */
-      --accent: #F59E0B;
-      --accent-2: #FBBF24;
-      --accent-soft: rgba(245, 158, 11, 0.12);
+      --surface: #131E12;               /* card — sits cleanly above bg-1 */
+      --surface-solid: #131E12;
+      --surface-2: #1B2A1A;             /* raised chips/pills */
+      --surface-elev: #1B2A1A;          /* reply-box */
+      /* Borders — mint-tinted hairlines */
+      --border: rgba(233, 255, 219, 0.08);
+      --border-strong: rgba(233, 255, 219, 0.18);
+      /* Text — #E9FFDB shines as the primary text on dark forest */
+      --text: #E9FFDB;
+      --text-muted: #B5C7A8;
+      --text-dim: #8A9C80;
+      --text-placeholder: #5C6E54;
+      /* Accent — bright mint for visibility on dark */
+      --accent: #A8DC8C;
+      --accent-2: #C8F0A8;
+      --accent-soft: rgba(168, 220, 140, 0.14);
       /* Inputs */
-      --input-bg: #0F172A;              /* slate-900 — darker than card for inset */
-      --input-border: rgba(255, 255, 255, 0.08);
-      --focus-ring: rgba(245, 158, 11, 0.25);
+      --input-bg: #0F1A0F;
+      --input-border: rgba(233, 255, 219, 0.08);
+      --focus-ring: rgba(168, 220, 140, 0.28);
       /* Semantic */
       --ok-text: #86EFAC;
-      --ok-bg: rgba(34, 197, 94, 0.12);
+      --ok-bg: rgba(34, 197, 94, 0.14);
       --warn-text: #FCD34D;
       --warn-bg: rgba(245, 158, 11, 0.12);
       --danger-text: #FCA5A5;
@@ -105,19 +105,20 @@
       --mint: #34D399;
       --rose: #F87171;
       --warn: #FBBF24;
-      /* Code surface */
-      --code-bg: #020617;               /* slate-950, deeper than card */
-      --code-border: rgba(255, 255, 255, 0.06);
+      /* Code surface — deepest forest */
+      --code-bg: #050B05;
+      --code-border: rgba(233, 255, 219, 0.06);
       /* Elevation — depth not glow */
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
       --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.45);
       --shadow-glow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-btn: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(245, 158, 11, 0.20);
+      --shadow-btn: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(168, 220, 140, 0.22);
       --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-      --gradient-bg: radial-gradient(ellipse 70% 30% at 50% 0%, rgba(245, 158, 11, 0.05), transparent 70%);
-      --gradient-text: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
-      --gradient-accent: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+      /* Light ambient mint at top — soft glow */
+      --gradient-bg: radial-gradient(ellipse 75% 35% at 50% 0%, rgba(168, 220, 140, 0.08), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #E9FFDB 0%, #A8DC8C 100%);
+      --gradient-accent: linear-gradient(180deg, #6BBF59 0%, #4A8C2F 100%);
     }
 
     /* ============================================================
@@ -343,7 +344,7 @@
     .btn-primary:hover {
       transform: translateY(-1px);
       filter: brightness(1.05);
-      box-shadow: 0 1px 2px rgba(217, 119, 6, 0.20), 0 6px 16px rgba(217, 119, 6, 0.20);
+      box-shadow: 0 1px 2px rgba(74, 140, 47, 0.24), 0 6px 16px rgba(74, 140, 47, 0.22);
     }
     .btn-primary:active { transform: translateY(0); filter: brightness(0.98); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
