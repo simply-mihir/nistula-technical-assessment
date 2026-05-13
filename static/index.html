@@ -11,60 +11,62 @@
     /* ============================================================
        Theme variables
        ============================================================ */
+    /* Premium minimal palette — inspired by Linear, Vercel, Stripe Dashboard.
+       Neutral charcoals/off-whites with a single restrained warm-amber accent.
+       Surfaces use layered elevation, not glow. Borders are hairline. */
+
     :root[data-theme="dark"] {
-      --bg-1: #0d0719;
-      --bg-2: #181030;
-      --surface: rgba(35, 22, 60, 0.55);
-      --surface-solid: #1a1230;
-      --surface-2: #241640;
-      --border: rgba(180, 140, 255, 0.12);
-      --border-strong: rgba(180, 140, 255, 0.22);
-      --text: #f0ecf7;
-      --text-muted: #9a8fb8;
-      --text-dim: #5f547a;
-      --accent: #d4a574;
-      --accent-2: #f4d4a8;
-      --mint: #7dd3b0;
-      --rose: #f06d6a;
-      --warn: #f0b969;
-      --code-bg: rgba(13, 7, 25, 0.55);
-      --shadow-lg: 0 24px 60px -16px rgba(70, 30, 130, 0.55);
-      --shadow-glow: 0 0 50px -10px rgba(168, 85, 247, 0.35);
+      --bg-1: #0a0a0b;                            /* near-black, slight warm tint */
+      --bg-2: #111113;
+      --surface: rgba(22, 22, 25, 0.85);          /* card — sits clearly above bg */
+      --surface-solid: #161618;
+      --surface-2: #1c1c20;                       /* inputs, raised inner surfaces */
+      --border: rgba(255, 255, 255, 0.08);        /* hairline */
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text: #fafafa;                            /* WCAG AAA on bg-1 */
+      --text-muted: #a1a1aa;                      /* zinc-400, clearly readable */
+      --text-dim: #71717a;                        /* zinc-500, secondary labels */
+      --accent: #f59e0b;                          /* amber-500, single accent */
+      --accent-2: #fbbf24;                        /* amber-400, hover/highlight */
+      --mint: #34d399;                            /* emerald-400, success only */
+      --rose: #f87171;                            /* red-400, escalation only */
+      --warn: #fbbf24;                            /* amber-400, agent-review */
+      --code-bg: #0a0a0b;                         /* inset feel against card */
+      --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+      --shadow-glow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+      /* Ambient warm tint only — almost imperceptible, no neon */
       --gradient-bg:
-        radial-gradient(ellipse 80% 60% at 12% 0%, rgba(139, 92, 246, 0.32), transparent 60%),
-        radial-gradient(ellipse 70% 55% at 92% 22%, rgba(192, 100, 240, 0.22), transparent 60%),
-        radial-gradient(ellipse 90% 60% at 50% 110%, rgba(120, 60, 200, 0.20), transparent 70%),
-        radial-gradient(ellipse 50% 45% at 80% 90%, rgba(225, 110, 200, 0.10), transparent 65%);
-      --gradient-text: linear-gradient(135deg, #f4d4a8 0%, #d4a574 50%, #b8895a 100%);
-      --gradient-accent: linear-gradient(135deg, #d4a574 0%, #b8895a 100%);
+        radial-gradient(ellipse 90% 40% at 50% 0%, rgba(245, 158, 11, 0.04), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 100% 100%, rgba(255, 255, 255, 0.02), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      --gradient-accent: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
     }
 
     :root[data-theme="light"] {
-      --bg-1: #fbf7f4;
-      --bg-2: #f4ede6;
-      --surface: rgba(255, 252, 248, 0.75);
+      --bg-1: #fafafa;                            /* zinc-50 */
+      --bg-2: #f4f4f5;                            /* zinc-100 */
+      --surface: rgba(255, 255, 255, 0.9);        /* clean white card */
       --surface-solid: #ffffff;
-      --surface-2: #f8f1ea;
-      --border: rgba(80, 50, 120, 0.10);
-      --border-strong: rgba(80, 50, 120, 0.20);
-      --text: #1f1730;
-      --text-muted: #6b5d80;
-      --text-dim: #9d8fb0;
-      --accent: #b8895a;
-      --accent-2: #d4a574;
-      --mint: #4ea888;
-      --rose: #d65651;
-      --warn: #c89039;
-      --code-bg: rgba(80, 50, 120, 0.05);
-      --shadow-lg: 0 24px 60px -20px rgba(120, 80, 180, 0.18);
-      --shadow-glow: 0 0 40px -8px rgba(196, 168, 255, 0.35);
+      --surface-2: #fafafa;                       /* input bg on white card */
+      --border: rgba(9, 9, 11, 0.08);             /* hairline */
+      --border-strong: rgba(9, 9, 11, 0.14);
+      --text: #09090b;                            /* zinc-950, max contrast */
+      --text-muted: #52525b;                      /* zinc-600 */
+      --text-dim: #71717a;                        /* zinc-500 */
+      --accent: #d97706;                          /* amber-600, readable on white */
+      --accent-2: #b45309;                        /* amber-700, hover */
+      --mint: #16a34a;                            /* green-600 */
+      --rose: #dc2626;                            /* red-600 */
+      --warn: #ea580c;                            /* orange-600 */
+      --code-bg: #f4f4f5;                         /* zinc-100, distinct from card */
+      --shadow-lg: 0 1px 3px rgba(9, 9, 11, 0.04), 0 4px 16px -4px rgba(9, 9, 11, 0.06);
+      --shadow-glow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.04);
+      /* Whisper of warmth at the top — almost ambient */
       --gradient-bg:
-        radial-gradient(ellipse 75% 60% at 8% 0%, rgba(255, 196, 168, 0.55), transparent 60%),
-        radial-gradient(ellipse 70% 60% at 95% 18%, rgba(196, 168, 255, 0.45), transparent 60%),
-        radial-gradient(ellipse 80% 55% at 50% 100%, rgba(255, 178, 200, 0.32), transparent 70%),
-        radial-gradient(ellipse 55% 45% at 80% 88%, rgba(168, 218, 255, 0.22), transparent 65%);
-      --gradient-text: linear-gradient(135deg, #8a5e36 0%, #b8895a 50%, #d4a574 100%);
-      --gradient-accent: linear-gradient(135deg, #b8895a 0%, #8a5e36 100%);
+        radial-gradient(ellipse 90% 40% at 50% 0%, rgba(245, 158, 11, 0.05), transparent 60%),
+        radial-gradient(ellipse 70% 40% at 100% 100%, rgba(9, 9, 11, 0.015), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      --gradient-accent: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
     }
 
     /* ============================================================
@@ -109,8 +111,9 @@
       width: 28px; height: 28px; border-radius: 8px;
       background: var(--gradient-accent);
       display: flex; align-items: center; justify-content: center;
-      color: #1a1410; font-weight: 800; font-size: 14px;
+      color: #ffffff; font-weight: 700; font-size: 14px;
       box-shadow: var(--shadow-glow);
+      letter-spacing: -0.02em;
     }
     .brand-name {
       background: var(--gradient-text);
@@ -273,7 +276,7 @@
       transition: all .2s;
     }
     .btn-primary {
-      background: var(--gradient-accent); color: #1a1410;
+      background: var(--gradient-accent); color: #ffffff;
       box-shadow: var(--shadow-glow);
     }
     .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); }
@@ -526,7 +529,7 @@
   </main>
 
   <footer>
-    Press <kbd style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;">⌘ ↵</kbd> to send · Built with FastAPI &amp; Claude
+    Made by Prateek Raushan for Nistula
   </footer>
 
   <script>
