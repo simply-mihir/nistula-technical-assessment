@@ -1,118 +1,447 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nistula · Message Handler</title>
+  <title>Nistula</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #0b0d12;
-      --panel: #11141b;
-      --panel-2: #161a23;
-      --border: #232836;
-      --text: #e6e9ef;
-      --muted: #8a93a6;
-      --accent: #c9a86a;          /* warm sand */
-      --accent-2: #6ec1a1;        /* mint */
-      --danger: #ef6f6c;
-      --warn: #e8b86a;
-      --ok: #6ec1a1;
-      --code-bg: #0f1218;
-      --shadow: 0 12px 40px rgba(0,0,0,0.35);
+    /* ============================================================
+       Theme variables
+       ============================================================ */
+    :root[data-theme="dark"] {
+      --bg-1: #0a0b10;
+      --bg-2: #11131c;
+      --surface: rgba(22, 25, 36, 0.6);
+      --surface-solid: #161924;
+      --surface-2: #1c2030;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text: #ecedf2;
+      --text-muted: #8b91a3;
+      --text-dim: #5a6072;
+      --accent: #d4a574;
+      --accent-2: #f4d4a8;
+      --mint: #7dd3b0;
+      --rose: #f06d6a;
+      --warn: #f0b969;
+      --code-bg: rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 40px -8px rgba(212, 165, 116, 0.25);
+      --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 165, 116, 0.15), transparent 70%),
+                     radial-gradient(ellipse 60% 50% at 100% 100%, rgba(125, 211, 176, 0.08), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #f4d4a8 0%, #d4a574 50%, #b8895a 100%);
+      --gradient-accent: linear-gradient(135deg, #d4a574 0%, #b8895a 100%);
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
-                 font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-                 font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+    :root[data-theme="light"] {
+      --bg-1: #fafaf7;
+      --bg-2: #f4f1eb;
+      --surface: rgba(255, 255, 255, 0.7);
+      --surface-solid: #ffffff;
+      --surface-2: #f7f4ee;
+      --border: rgba(20, 20, 30, 0.08);
+      --border-strong: rgba(20, 20, 30, 0.16);
+      --text: #1a1a22;
+      --text-muted: #5c6273;
+      --text-dim: #9aa0b0;
+      --accent: #b8895a;
+      --accent-2: #d4a574;
+      --mint: #4ea888;
+      --rose: #d65651;
+      --warn: #c89039;
+      --code-bg: rgba(20, 20, 30, 0.04);
+      --shadow-lg: 0 24px 60px -20px rgba(20, 20, 30, 0.15);
+      --shadow-glow: 0 0 40px -8px rgba(184, 137, 90, 0.2);
+      --gradient-bg: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 165, 116, 0.22), transparent 70%),
+                     radial-gradient(ellipse 60% 50% at 100% 100%, rgba(78, 168, 136, 0.1), transparent 70%);
+      --gradient-text: linear-gradient(135deg, #8a5e36 0%, #b8895a 50%, #d4a574 100%);
+      --gradient-accent: linear-gradient(135deg, #b8895a 0%, #8a5e36 100%);
+    }
+
+    /* ============================================================
+       Reset + globals
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg-1);
+      background-image: var(--gradient-bg);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color .3s ease, color .3s ease;
+    }
     a { color: var(--accent); text-decoration: none; }
-    header {
-      padding: 28px 40px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: baseline; justify-content: space-between;
+    a:hover { color: var(--accent-2); }
+
+    /* ============================================================
+       Top nav — minimal, no titles
+       ============================================================ */
+    nav {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--bg-1) 70%, transparent);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.2px; }
-    header .sub { color: var(--muted); font-size: 12.5px; }
-    main { max-width: 1180px; margin: 0 auto; padding: 32px 40px 64px;
-           display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 17px; letter-spacing: -0.01em;
+    }
+    .brand-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: var(--gradient-accent);
+      display: flex; align-items: center; justify-content: center;
+      color: #1a1410; font-weight: 800; font-size: 14px;
+      box-shadow: var(--shadow-glow);
+    }
+    .brand-name {
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link {
+      font-size: 13.5px; color: var(--text-muted); padding: 8px 14px;
+      border-radius: 8px; transition: all .2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface-2); }
+    .theme-toggle {
+      width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .sun { display: none; }
+    :root[data-theme="light"] .theme-toggle .moon { display: none; }
+    :root[data-theme="light"] .theme-toggle .sun { display: block; }
+
+    /* ============================================================
+       Hero — replaces the old title strip with something inviting
+       ============================================================ */
+    .hero {
+      max-width: 1280px; margin: 0 auto;
+      padding: 64px 32px 24px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 12.5px; color: var(--text-muted);
+      backdrop-filter: blur(10px);
+    }
+    .hero-eyebrow::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 8px var(--mint);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+    .hero-title {
+      margin: 22px 0 10px;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+    }
+    .hero-title .grad {
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      max-width: 600px; margin: 0 auto;
+      color: var(--text-muted); font-size: 16px;
+    }
+
+    /* ============================================================
+       Main grid
+       ============================================================ */
+    main {
+      max-width: 1280px; margin: 0 auto;
+      padding: 24px 32px 64px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
     .card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-      padding: 22px; box-shadow: var(--shadow);
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow-lg);
+      transition: border-color .25s, transform .25s;
     }
-    .card h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; letter-spacing: 0.3px;
-               text-transform: uppercase; color: var(--muted); }
-    .card p.help { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
-    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px;
-            text-transform: uppercase; letter-spacing: 0.4px; }
+    .card:hover { border-color: var(--border-strong); }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title::before {
+      content: ''; display: inline-block; width: 4px; height: 14px;
+      background: var(--gradient-accent); border-radius: 2px;
+    }
+    .card-hint { font-size: 12.5px; color: var(--text-dim); }
+    .card p.help { margin: 6px 0 18px; color: var(--text-muted); font-size: 13.5px; }
+
+    /* ============================================================
+       Form
+       ============================================================ */
+    label {
+      display: block; font-size: 11.5px; color: var(--text-muted);
+      margin: 14px 0 6px;
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+    }
     select, input, textarea {
-      width: 100%; background: var(--panel-2); color: var(--text);
-      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
-      font: inherit; outline: none; transition: border-color .15s;
+      width: 100%; background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 11px 14px;
+      font: inherit; font-size: 14px;
+      outline: none; transition: border-color .2s, box-shadow .2s, background-color .2s;
     }
-    select:focus, input:focus, textarea:focus { border-color: var(--accent); }
-    textarea { min-height: 100px; resize: vertical; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+    textarea {
+      min-height: 110px; resize: vertical;
+      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      font-size: 13px; line-height: 1.55;
+    }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
-    button {
-      background: var(--accent); color: #1a1410; border: none; border-radius: 8px;
-      padding: 10px 16px; font: inherit; font-weight: 600; cursor: pointer;
-      transition: transform .05s, filter .15s;
+
+    /* ============================================================
+       Preset chips
+       ============================================================ */
+    .preset-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 4px;
     }
-    button:hover { filter: brightness(1.08); }
-    button:active { transform: translateY(1px); }
-    button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    button.ghost:hover { border-color: var(--accent); color: var(--accent); }
-    .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
     .preset {
-      font-size: 12px; padding: 6px 10px; border: 1px solid var(--border);
-      border-radius: 999px; background: var(--panel-2); color: var(--muted); cursor: pointer;
+      font-size: 12.5px; padding: 7px 13px;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface-2); color: var(--text-muted);
+      cursor: pointer; transition: all .2s;
+      font-family: inherit; font-weight: 500;
     }
-    .preset:hover { color: var(--text); border-color: var(--accent); }
-    .response {
-      background: var(--code-bg); border-radius: 10px; padding: 16px;
-      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 12.5px;
-      white-space: pre-wrap; word-break: break-word; min-height: 200px;
-      color: #cfd5e1; border: 1px solid var(--border);
+    .preset:hover {
+      color: var(--text); border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+      transform: translateY(-1px);
     }
-    .meta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin: 14px 0 8px; }
-    .pill { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--panel-2);
-            border: 1px solid var(--border); color: var(--muted); }
-    .pill.ok { color: var(--ok); border-color: rgba(110,193,161,0.4); }
-    .pill.warn { color: var(--warn); border-color: rgba(232,184,106,0.4); }
-    .pill.danger { color: var(--danger); border-color: rgba(239,111,108,0.45); }
-    .reply-box { background: var(--panel-2); border-left: 3px solid var(--accent);
-                 padding: 12px 14px; border-radius: 0 8px 8px 0; margin-top: 10px;
-                 white-space: pre-wrap; }
-    .footer { color: var(--muted); font-size: 12px; margin-top: 24px; text-align: center; }
-    .bar { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-    .bar .track { flex: 1; height: 6px; background: var(--panel-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
-    .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
-    .bar .val { width: 44px; text-align: right; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
-    @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
-      header { padding: 20px; }
+    .preset:active { transform: translateY(0); }
+
+    /* ============================================================
+       Buttons
+       ============================================================ */
+    .actions {
+      margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 20px; border: none; border-radius: 10px;
+      font: inherit; font-weight: 600; font-size: 14px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s;
+    }
+    .btn-primary {
+      background: var(--gradient-accent); color: #1a1410;
+      box-shadow: var(--shadow-glow);
+    }
+    .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn svg { width: 16px; height: 16px; }
+
+    /* ============================================================
+       Response area
+       ============================================================ */
+    .meta {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      margin: 6px 0 16px;
+    }
+    .pill {
+      font-size: 12px; padding: 5px 12px; border-radius: 999px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 500; transition: all .25s;
+    }
+    .pill.ok    { color: var(--mint); border-color: color-mix(in srgb, var(--mint) 35%, transparent); background: color-mix(in srgb, var(--mint) 12%, transparent); }
+    .pill.warn  { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 35%, transparent); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+    .pill.danger{ color: var(--rose); border-color: color-mix(in srgb, var(--rose) 35%, transparent); background: color-mix(in srgb, var(--rose) 12%, transparent); }
+    .pill::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; opacity: 0.7;
+    }
+
+    .reply-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 8px; white-space: pre-wrap;
+      font-size: 14.5px; line-height: 1.6;
+      transition: all .25s;
+    }
+    .reply-box.placeholder { color: var(--text-dim); font-style: italic; }
+
+    .conf-row {
+      display: flex; align-items: center; gap: 12px; margin-top: 6px;
+    }
+    .conf-track {
+      flex: 1; height: 8px; background: var(--surface-2);
+      border-radius: 999px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .conf-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--mint));
+      border-radius: 999px;
+      transition: width .6s cubic-bezier(.22,.61,.36,1);
+    }
+    .conf-val {
+      min-width: 52px; text-align: right;
+      color: var(--text); font-size: 15px;
+      font-variant-numeric: tabular-nums; font-weight: 600;
+      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    }
+
+    .json-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      font-size: 12.5px; line-height: 1.55;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 320px; overflow: auto;
+      color: var(--text);
+    }
+    .json-block::-webkit-scrollbar { width: 8px; height: 8px; }
+    .json-block::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+    .json-block::-webkit-scrollbar-track { background: transparent; }
+
+    /* Copy button — small floating */
+    .copy-btn {
+      float: right; margin-top: -32px; margin-right: 4px;
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer;
+      font-size: 11px; font-family: inherit;
+      transition: all .2s;
+    }
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ============================================================
+       Footer
+       ============================================================ */
+    footer {
+      text-align: center; padding: 24px 32px 40px;
+      color: var(--text-dim); font-size: 12.5px;
+    }
+
+    /* ============================================================
+       Responsive
+       ============================================================ */
+    @media (max-width: 960px) {
+      nav { padding: 14px 20px; }
+      .hero { padding: 40px 20px 16px; }
+      main { grid-template-columns: 1fr; padding: 16px 20px 40px; gap: 16px; }
+      .card { padding: 22px; border-radius: 16px; }
+    }
+    @media (max-width: 560px) {
+      .row { grid-template-columns: 1fr; }
+      .nav-link { display: none; }
+      .hero-title { font-size: 28px; }
+      .hero-sub { font-size: 14px; }
+      .card { padding: 18px; }
+      .actions .btn { flex: 1; justify-content: center; }
+    }
+
+    /* ============================================================
+       Loading state
+       ============================================================ */
+    .spinner {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid currentColor; border-top-color: transparent;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Subtle fade-in for response */
+    .fade-in { animation: fadeIn .35s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>Nistula · Guest Message Handler</h1>
-      <div class="sub">POST /webhook/message · live demo</div>
+  <nav>
+    <div class="brand">
+      <div class="brand-mark">N</div>
+      <span class="brand-name">Nistula</span>
     </div>
-    <div class="sub"><a href="/docs">OpenAPI docs →</a></div>
+    <div class="nav-right">
+      <a class="nav-link" href="/docs">API Docs</a>
+      <a class="nav-link" href="/health">Status</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="hero-eyebrow">Service online · all channels</span>
+    <h1 class="hero-title">AI concierge for <span class="grad">every guest message</span></h1>
+    <p class="hero-sub">Normalises inbound messages from WhatsApp, Booking.com, Airbnb, Instagram and direct channels — drafts a reply with Claude and scores every response for confidence.</p>
   </header>
 
   <main>
-    <!-- Input -->
+    <!-- ===== Input ===== -->
     <section class="card">
-      <h2>Inbound Message</h2>
-      <p class="help">Fill the payload below, or pick a preset. The webhook will normalise it, classify the intent, draft a reply via Claude, and return a confidence-scored action.</p>
+      <div class="card-header">
+        <div class="card-title">Inbound Message</div>
+        <span class="card-hint">POST /webhook/message</span>
+      </div>
+      <p class="help">Pick a preset or compose your own payload. We normalise it, classify the intent, draft a reply with Claude, and return a confidence-scored action.</p>
 
       <div class="preset-row">
-        <button class="preset" data-preset="availability">Pre-sales · availability</button>
+        <button class="preset" data-preset="availability">Availability</button>
         <button class="preset" data-preset="pricing">Pricing</button>
-        <button class="preset" data-preset="checkin">Check-in / WiFi</button>
+        <button class="preset" data-preset="checkin">Check-in</button>
         <button class="preset" data-preset="special">Special request</button>
-        <button class="preset" data-preset="complaint">Complaint (3am)</button>
+        <button class="preset" data-preset="complaint">Complaint</button>
         <button class="preset" data-preset="general">General enquiry</button>
       </div>
 
@@ -132,9 +461,10 @@
           <input id="guest_name" value="Rahul Sharma" />
         </div>
       </div>
+
       <div class="row">
         <div>
-          <label>Booking ref</label>
+          <label>Booking reference</label>
           <input id="booking_ref" value="NIS-2024-0891" />
         </div>
         <div>
@@ -142,41 +472,77 @@
           <input id="property_id" value="villa-b1" />
         </div>
       </div>
+
       <label>Timestamp (ISO 8601)</label>
       <input id="timestamp" value="2026-05-05T10:30:00Z" />
-      <label>Message</label>
+
+      <label>Message body</label>
       <textarea id="message">Is the villa available from April 20 to 24? What is the rate for 2 adults?</textarea>
 
       <div class="actions">
-        <button id="send">Send to /webhook/message</button>
-        <button class="ghost" id="copy">Copy payload</button>
+        <button class="btn btn-primary" id="send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send Message
+        </button>
+        <button class="btn btn-ghost" id="copy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy payload
+        </button>
       </div>
     </section>
 
-    <!-- Output -->
+    <!-- ===== Response ===== -->
     <section class="card">
-      <h2>Handler Response</h2>
+      <div class="card-header">
+        <div class="card-title">Handler Response</div>
+        <span class="card-hint" id="latency">awaiting request</span>
+      </div>
+
       <div class="meta">
         <span id="status" class="pill">idle</span>
-        <span id="latency" class="pill">—</span>
         <span id="action" class="pill">action: —</span>
-        <span id="qtype" class="pill">query_type: —</span>
+        <span id="qtype" class="pill">type: —</span>
       </div>
 
       <label>Drafted reply</label>
-      <div class="reply-box" id="reply">—</div>
+      <div class="reply-box placeholder" id="reply">Reply will appear here once you send a message.</div>
 
-      <label>Confidence</label>
-      <div class="bar"><div class="track"><div class="fill" id="conf-bar" style="width:0%"></div></div><div class="val" id="conf-val">—</div></div>
+      <label>Confidence score</label>
+      <div class="conf-row">
+        <div class="conf-track"><div class="conf-fill" id="conf-bar"></div></div>
+        <div class="conf-val" id="conf-val">—</div>
+      </div>
 
-      <label>Raw JSON</label>
-      <div class="response" id="raw">—</div>
+      <label>Raw response</label>
+      <button class="copy-btn" id="copy-json">Copy</button>
+      <div class="json-block" id="raw">{ }</div>
     </section>
   </main>
 
-  <div class="footer">Nistula technical assessment · built with FastAPI + Claude</div>
+  <footer>
+    Press <kbd style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:11px;">⌘ ↵</kbd> to send · Built with FastAPI &amp; Claude
+  </footer>
 
   <script>
+    // ============================================================
+    // Theme: persists across reloads, respects system preference
+    // ============================================================
+    const root = document.documentElement;
+    const saved = localStorage.getItem('nistula-theme');
+    if (saved) {
+      root.setAttribute('data-theme', saved);
+    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      root.setAttribute('data-theme', 'light');
+    }
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('nistula-theme', next);
+    });
+
+    // ============================================================
+    // Presets
+    // ============================================================
     const PRESETS = {
       availability: {
         source: "whatsapp", guest_name: "Rahul Sharma",
@@ -238,11 +604,18 @@
       setTimeout(() => { s.textContent = "idle"; s.className = "pill"; }, 1200);
     });
 
-    $("send").addEventListener("click", async () => {
-      const status = $("status"), latency = $("latency");
-      status.textContent = "sending…"; status.className = "pill warn";
+    $("copy-json").addEventListener("click", async () => {
+      await navigator.clipboard.writeText($("raw").textContent);
+      const b = $("copy-json"); const t = b.textContent;
+      b.textContent = "Copied"; setTimeout(() => b.textContent = t, 1200);
+    });
+
+    async function sendRequest() {
+      const status = $("status"), latency = $("latency"), btn = $("send");
+      status.innerHTML = '<span class="spinner"></span> sending'; status.className = "pill warn";
       latency.textContent = "—";
-      $("reply").textContent = "…";
+      btn.disabled = true;
+      $("reply").textContent = "…"; $("reply").classList.remove("placeholder");
       $("raw").textContent = "…";
       $("conf-bar").style.width = "0%"; $("conf-val").textContent = "—";
 
@@ -259,13 +632,17 @@
 
         if (!r.ok) {
           status.textContent = "error " + r.status; status.className = "pill danger";
-          $("reply").textContent = body.detail || "(no detail)";
+          $("reply").textContent = body.detail || JSON.stringify(body);
+          $("reply").classList.remove("placeholder");
           $("raw").textContent = JSON.stringify(body, null, 2);
           return;
         }
 
-        status.textContent = "ok"; status.className = "pill ok";
+        status.textContent = "success"; status.className = "pill ok";
         $("reply").textContent = body.drafted_reply || "(empty)";
+        $("reply").classList.remove("placeholder");
+        $("reply").classList.remove("fade-in"); void $("reply").offsetWidth;
+        $("reply").classList.add("fade-in");
         $("raw").textContent = JSON.stringify(body, null, 2);
 
         const c = body.confidence_score ?? 0;
@@ -278,11 +655,20 @@
         actEl.className = "pill " + (action === "auto_send" ? "ok" :
                                      action === "agent_review" ? "warn" : "danger");
 
-        $("qtype").textContent = "query_type: " + (body.query_type || "—");
+        $("qtype").textContent = "type: " + (body.query_type || "—");
       } catch (e) {
         status.textContent = "network error"; status.className = "pill danger";
         $("raw").textContent = String(e);
+      } finally {
+        btn.disabled = false;
       }
+    }
+
+    $("send").addEventListener("click", sendRequest);
+
+    // Cmd/Ctrl + Enter to send
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") sendRequest();
     });
 
     // Auto-fill a fresh timestamp on load
