@@ -1,4 +1,6 @@
 """Confidence scorer unit tests."""
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 from src.classifier import classify
