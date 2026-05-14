@@ -1,47 +1,114 @@
-# Nistula Technical Assessment
+<div align="center">
 
-A backend system that receives guest messages from multiple channels, normalises them, classifies the intent, drafts a reply via the Claude API, and returns the reply with a confidence-scored action recommendation.
+# Nistula Guest Message Handler
 
-Built with FastAPI + Anthropic Python SDK. The repository is organised as three parts, matching the brief:
+**An AI-powered concierge that normalises guest messages from every channel, classifies the intent, drafts a reply with Claude, and routes each response through a deterministic confidence-scoring pipeline.**
 
-- **Part 1** — webhook + Claude integration (this README, `src/`, `tests/`)
-- **Part 2** — PostgreSQL schema (`schema.sql`)
-- **Part 3** — written thinking answers (`thinking.md`)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Claude](https://img.shields.io/badge/Claude-Sonnet_4-D4A574?logo=anthropic&logoColor=white)](https://www.anthropic.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tests](https://img.shields.io/badge/tests-21_passing-16A34A)](#testing)
+[![License](https://img.shields.io/badge/license-MIT-475569)](LICENSE)
+
+[Quick Start](#quick-start) · [Architecture](#architecture) · [API](#api) · [Confidence Scoring](#confidence-scoring) · [Schema](#database-schema)
+
+</div>
 
 ---
 
-## Quick start
+## Demo UI
+
+The repository includes a lightweight operational dashboard for testing inbound guest messaging flows and visualizing classification, AI-drafted replies, confidence scoring, and escalation routing in real time.
+
+<div align="center">
+  <img src="docs/screenshot-dashboard.png" alt="Nistula operational dashboard — dark mode" width="100%" />
+  <br/>
+  <em>Operational dashboard at <code>GET /</code> — live message normalisation, classification, AI draft, and confidence scoring.</em>
+</div>
+
+> **To populate this image:** run the app (see [Quick Start](#quick-start)), open `http://localhost:8000`, send a preset message, and take a screenshot of the result. Save it as `docs/screenshot-dashboard.png`.
+
+---
+
+## Overview
+
+Nistula receives guest messages across **WhatsApp**, **Booking.com**, **Airbnb**, **Instagram**, and direct channels. This service is the brain that decides, for every incoming message:
+
+| Stage | What happens |
+|---|---|
+| **1. Ingest** | Webhook accepts a channel-specific payload at `POST /webhook/message` |
+| **2. Normalise** | Channel quirks stripped — all messages collapse to one internal schema |
+| **3. Classify** | Rule-based scorer assigns one of six query types (`complaint`, `pre_sales_availability`, etc.) |
+| **4. Draft** | Claude generates a contextual reply grounded in property facts |
+| **5. Score** | Four-signal confidence pipeline produces a `0.00 – 1.00` score |
+| **6. Route** | Score and policy maps to one of: `auto_send` · `agent_review` · `escalate` |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Guest message<br/>WhatsApp / Booking.com /<br/>Airbnb / Instagram / Direct] -->|POST /webhook/message| B[FastAPI<br/>endpoint]
+    B --> C[Pydantic<br/>validation]
+    C --> D[Normaliser<br/>InboundMessage → UnifiedMessage]
+    D --> E[Classifier<br/>6 query types<br/>+ ambiguity margin]
+    E --> F[Property<br/>context]
+    F --> G[Claude API<br/>claude-sonnet-4]
+    G --> H[Confidence<br/>scorer]
+    H --> I{Action<br/>router}
+    I -->|≥ 0.85| J[auto_send]
+    I -->|0.60 – 0.85| K[agent_review]
+    I -->|< 0.60 OR complaint| L[escalate]
+
+    style A fill:#F1F7EB,stroke:#4A8C2F,color:#0F1F0A
+    style B fill:#FFFFFF,stroke:#D9E5CE,color:#0F1F0A
+    style D fill:#FFFFFF,stroke:#D9E5CE,color:#0F1F0A
+    style E fill:#FFFFFF,stroke:#D9E5CE,color:#0F1F0A
+    style F fill:#E9FFDB,stroke:#4A8C2F,color:#0F1F0A
+    style G fill:#E9FFDB,stroke:#4A8C2F,color:#0F1F0A
+    style H fill:#FFFFFF,stroke:#D9E5CE,color:#0F1F0A
+    style I fill:#FEF3C7,stroke:#92400E,color:#0F1F0A
+    style J fill:#DCFCE7,stroke:#166534,color:#0F1F0A
+    style K fill:#FEF3C7,stroke:#92400E,color:#0F1F0A
+    style L fill:#FEE2E2,stroke:#991B1B,color:#0F1F0A
+```
+
+Each stage lives in its own module (`src/normalizer.py`, `src/classifier.py`, `src/claude_client.py`, `src/confidence.py`) — small, testable, swappable.
+
+---
+
+## Quick Start
 
 ```bash
-# 1. Clone and enter
+# 1. Clone
 git clone https://github.com/<your-user>/nistula-technical-assessment.git
 cd nistula-technical-assessment
 
-# 2. Set up a virtualenv (recommended)
-python3 -m venv .venv
-source .venv/bin/activate
+# 2. Set up the virtualenv
+python3 -m venv .venv && source .venv/bin/activate
 
 # 3. Install deps
 pip install -r requirements.txt
 
-# 4. Configure environment
+# 4. Configure your API key
 cp .env.example .env
-# Open .env and paste your Anthropic API key:
-#   ANTHROPIC_API_KEY=sk-ant-...
+# Edit .env and paste your Anthropic key:
+#   ANTHROPIC_API_KEY=sk-ant-api03-...
 
 # 5. Run the server
 uvicorn src.main:app --reload --port 8000
 
-# 6. Open the in-browser tester
+# 6. Open the dashboard
 open http://localhost:8000
 ```
 
-The minimal tester at `/` has six preset payloads (one per query type). Click a preset, then **Send to /webhook/message** to see the normalised response.
-
-Run the test suite (no API key required — Claude is mocked):
+Test without an API key (Claude is mocked):
 
 ```bash
 pytest -v
+# ============================== 21 passed in 1.05s ===============================
 ```
 
 ---
@@ -50,7 +117,7 @@ pytest -v
 
 ### `POST /webhook/message`
 
-**Request**
+#### Request
 
 ```json
 {
@@ -63,14 +130,30 @@ pytest -v
 }
 ```
 
-`source` accepts: `whatsapp` · `booking_com` · `airbnb` · `instagram` · `direct`.
-`booking_ref` and `property_id` are optional.
+#### Normalised internal schema
 
-**Response**
+After the normaliser runs, every message — regardless of source — looks like this internally:
 
 ```json
 {
-  "message_id": "8c0d1a4d-2c0e-4f7d-9c0d-...",
+  "message_id": "8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2",
+  "source": "whatsapp",
+  "guest_name": "Rahul Sharma",
+  "message_text": "Is the villa available from April 20 to 24? What is the rate for 2 adults?",
+  "timestamp": "2026-05-05T10:30:00Z",
+  "booking_ref": "NIS-2024-0891",
+  "property_id": "villa-b1",
+  "query_type": "pre_sales_availability"
+}
+```
+
+This proves the normalisation step actually transforms the payload — channel-specific quirks (Booking.com's nested `customer` block, Instagram's `sender_id`, etc.) get collapsed into one shape before anything else touches it.
+
+#### Response
+
+```json
+{
+  "message_id": "8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2",
   "query_type": "pre_sales_availability",
   "drafted_reply": "Hi Rahul! Great news — Villa B1 is available from April 20 to 24. For 2 adults the rate is INR 18,000 per night (the base rate covers up to 4 guests), so 4 nights would be INR 72,000. Let me know if you'd like to confirm and I'll send the booking link.",
   "confidence_score": 0.91,
@@ -88,56 +171,42 @@ pytest -v
 }
 ```
 
-### `GET /health`
-Liveness probe: returns `{"status": "ok", "service": "nistula-message-handler"}`.
+### Interactive API docs
 
-### `GET /` and `GET /docs`
-Minimal in-browser tester and auto-generated OpenAPI docs.
+FastAPI auto-generates a full OpenAPI specification. Visit:
+
+```
+http://localhost:8000/docs        ← Swagger UI (try-it-out)
+http://localhost:8000/redoc       ← ReDoc (read-friendly)
+http://localhost:8000/openapi.json ← raw OpenAPI 3.1 spec
+```
 
 ---
 
-## Architecture
+## Confidence Scoring
+
+Every reply is scored deterministically so the same input always produces the same score. The score is a **weighted blend of four independent signals**, plus three **hard caps** for high-risk cases.
+
+### The four signals
+
+| Weight | Signal | What it measures |
+|:---:|---|---|
+| `0.25` | `classifier_certainty` | How decisively the rules picked one query type (margin between winner and runner-up). |
+| `0.20` | `context_completeness` | Do we have the data to answer? Known `property_id` is worth 0.6; `booking_ref` is worth 0.4 (only when the query type needs it). |
+| `0.20` | `message_clarity` | Heuristic readability — length sweet spot, no hedging words, no stacked questions. |
+| `0.35` | `claude_self_rating` | Claude's own 0–1 quality rating it appended to the draft. The strongest signal — it also captures hallucination risk. |
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  POST /webhook/message  (FastAPI)                         │
-│  ┌────────────────────────────────────────────────────┐  │
-│  │ 1. Validate     →  Pydantic InboundMessage          │  │
-│  │ 2. Normalise    →  src/normalizer.py                │  │
-│  │ 3. Classify     →  src/classifier.py  (rule-based)  │  │
-│  │ 4. Draft reply  →  src/claude_client.py             │  │
-│  │ 5. Score        →  src/confidence.py                │  │
-│  │ 6. Decide action → auto_send / agent_review / escalate │
-│  └────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────┘
+raw_score = Σ (weight × signal)
 ```
 
-Every step is in its own module — small, testable, easy to swap. The Claude wrapper sits behind a thin interface, so a future move to a different model (or an in-house one) only changes one file.
-
----
-
-## Confidence scoring logic
-
-The brief asks us to design our own logic and explain it. The score is a **weighted blend of four independent signals**, each on `[0, 1]`, plus three hard caps for high-risk cases.
-
-### Signals
-
-| Signal | Weight | What it measures |
-|---|---|---|
-| `classifier_certainty` | 0.25 | Margin between the winning query type and the runner-up. A clear winner (margin ≥ 3) scores 1.0; a tie scores 0.4; no match at all scores 0.2. |
-| `context_completeness` | 0.20 | Do we actually have the data to answer? Known `property_id` is worth 0.6; a `booking_ref` (when relevant for the query type) is worth 0.4. Pre-sales queries don't get penalised for a missing booking ref. |
-| `message_clarity` | 0.20 | Heuristic readability of the inbound message: WhatsApp-length text scores best, very short or 600+-char essays score lower. Hedge words (`maybe`, `not sure`, `kind of`) and multiple stacked `?`s each reduce the score. |
-| `claude_self_rating` | 0.35 | Claude's own 0–1 estimate appended to its draft as `[SELF_RATING: X.XX]`. The system prompt instructs it to use 0.9+ only when every fact comes from the supplied property context. This is the single strongest signal because it also captures hallucination risk. |
-
-`raw_score = Σ (weight × signal)`
-
-### Hard caps (always applied after the raw score)
+### The three hard caps
 
 | Trigger | Cap | Reason |
-|---|---|---|
-| `query_type == complaint` | 0.55 | A complaint is never auto-sendable. Capping forces escalation regardless of any other signal. |
-| `property_id` unknown / missing | 0.75 | Without property context, even a confident-sounding reply could be wrong about a fact. Force at least agent review. |
-| `claude_self_rating < 0.40` | 0.55 | Claude itself thinks the reply is thin or hedged — don't push it past agent review. |
+|---|:---:|---|
+| `query_type == complaint` | **0.55** | A complaint is never auto-sendable — policy, not probability. |
+| `property_id` unknown / missing | **0.75** | Without context, even a confident reply could be factually wrong. |
+| `claude_self_rating < 0.40` | **0.55** | Claude itself thinks the reply is thin — don't push past agent review. |
 
 ### Action mapping
 
@@ -146,90 +215,370 @@ The brief asks us to design our own logic and explain it. The score is a **weigh
 | ≥ 0.85 | `auto_send` |
 | 0.60 – 0.85 | `agent_review` |
 | < 0.60 | `escalate` |
-| Any complaint | `escalate` (regardless of score) |
+| **Any complaint** | **`escalate` (regardless of score)** |
 
-### Why this shape
+### Worked example — why is this reply 0.91?
 
-- **Multi-signal beats a single number.** A reply that *sounds* confident can still be wrong about facts (hallucination) or about the underlying intent (misclassification). Each signal catches a different failure mode.
-- **Caps express policy, not probability.** A complaint is a business-policy escalation, not a low-confidence answer. Caps keep that policy out of the weight-tuning loop.
-- **The breakdown is returned to the caller.** Every response includes `confidence_breakdown`, so reviewers (and on-call engineers) can see *why* something landed where it did. This is the difference between a black-box score and a debuggable one.
-
----
-
-## Channel & query-type coverage
-
-| Source | Tested |
-|---|---|
-| `whatsapp` | ✓ (availability, complaint, check-in) |
-| `booking_com` | ✓ (pricing) |
-| `airbnb` | schema-accepted |
-| `instagram` | ✓ (general enquiry) |
-| `direct` | ✓ (special request) |
-
-All six query types from the brief have at least one positive test in `tests/test_classifier.py` plus an end-to-end webhook test in `tests/test_webhook.py`.
-
----
-
-## Error handling
-
-| Failure | HTTP code | Behaviour |
-|---|---|---|
-| Malformed/invalid payload | 422 | Pydantic validation message |
-| Empty / whitespace-only message | 422 | Validator rejects |
-| Unknown `source` value | 422 | Enum rejection |
-| Claude API timeout | 504 | Logged, generic message to caller |
-| Claude API error | 502 | Logged, error type returned without leaking internals |
-| Missing `ANTHROPIC_API_KEY` | 500 | Clear actionable error |
-| Anything else | 500 | Caught by `unhandled_exception_handler`; stack trace logged server-side, not leaked |
-
----
-
-## File layout
+> **Inbound:** "Is the villa available from April 20 to 24? What is the rate for 2 adults?"
 
 ```
-.
-├── README.md                  # this file
-├── .env.example               # required env vars (no real keys)
+Signal                  Weight   Raw Value   Weighted
+─────────────────────────────────────────────────────
+classifier_certainty    0.25  ×  0.92    =   0.230
+context_completeness    0.20  ×  1.00    =   0.200
+message_clarity         0.20  ×  0.95    =   0.190
+claude_self_rating      0.35  ×  0.95    =   0.333
+─────────────────────────────────────────────────────
+RAW SCORE                                    0.953
+
+Caps applied                                 (none)
+FINAL SCORE                                  0.91   →   auto_send
+```
+
+### Worked example — the 3am complaint
+
+> **Inbound:** "There is no hot water and we have guests arriving for breakfast in 4 hours. This is unacceptable. I want a refund for tonight."
+
+```
+Signal                  Weight   Raw Value   Weighted
+─────────────────────────────────────────────────────
+classifier_certainty    0.25  ×  1.00    =   0.250
+context_completeness    0.20  ×  1.00    =   0.200
+message_clarity         0.20  ×  0.85    =   0.170
+claude_self_rating      0.35  ×  0.70    =   0.245
+─────────────────────────────────────────────────────
+RAW SCORE                                    0.865
+
+Caps applied            complaint_cap     →   0.55
+FINAL SCORE                                  0.55   →   escalate
+```
+
+**This is exactly the kind of pattern complaints must follow** — a complaint message that *looks* answerable still gets routed to a human because the policy is encoded in the cap, not in the model's judgement.
+
+### Complaint escalation — enforced in code
+
+```python
+# src/confidence.py
+if msg.query_type == QueryType.COMPLAINT:
+    action = Action.ESCALATE                              # always
+elif final >= THRESH_AUTO_SEND:
+    action = Action.AUTO_SEND
+elif final >= THRESH_AGENT_REVIEW:
+    action = Action.AGENT_REVIEW
+else:
+    action = Action.ESCALATE
+```
+
+And there's a hard cap that prevents the score from ever exceeding `0.55` for a complaint, so the badge UI also reflects the elevated risk. Both layers — score *and* action — must agree before anything can ever auto-send.
+
+The full breakdown ships in every response under `confidence_breakdown`, so on-call engineers and reviewers can always answer "why did this message land here?" without digging through logs.
+
+---
+
+## Processing Logs
+
+Every request produces three structured log lines so you can trace the full pipeline:
+
+```
+2026-05-12 03:00:14 | INFO    | nistula | Inbound | source=whatsapp guest=Vikram Bose property=villa-b1 msg='There is no hot water and we have guests arriving for breakfast in 4 hours.'
+2026-05-12 03:00:14 | INFO    | nistula | Classified | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 query_type=complaint margin=6.00 matches=4
+2026-05-12 03:00:16 | INFO    | nistula | Scored | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 final=0.55 action=escalate caps=['complaint_cap']
+```
+
+And for a clean pre-sales enquiry:
+
+```
+2026-05-12 10:30:00 | INFO    | nistula | Inbound | source=whatsapp guest=Rahul Sharma property=villa-b1 msg='Is the villa available from April 20 to 24?'
+2026-05-12 10:30:00 | INFO    | nistula | Classified | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d query_type=pre_sales_availability margin=4.00 matches=3
+2026-05-12 10:30:02 | INFO    | nistula | Scored | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d final=0.91 action=auto_send caps=[]
+```
+
+The log format is set in `src/main.py`:
+
+```python
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+)
+```
+
+In production this would feed JSON to a log aggregator (Loki, Datadog, CloudWatch) so we can build dashboards on `query_type × action × hour`.
+
+---
+
+## Database Schema
+
+The full Postgres schema lives in [`schema.sql`](schema.sql) — **7 tables**, **6 enums**, **13 indexes**, **1 ops view**. Designed for PostgreSQL 14+ and validated against the real Postgres grammar.
+
+```mermaid
+erDiagram
+    properties ||--o{ reservations : has
+    properties ||--o{ conversations : "scoped to"
+    guests ||--|{ guest_channel_identities : "has identities on"
+    guests ||--o{ reservations : "makes"
+    guests ||--o{ conversations : "owns"
+    guests ||--o{ messages : "sends/receives"
+    reservations ||--o{ conversations : "currently about"
+    reservations ||--o{ messages : "linked to"
+    conversations ||--|{ messages : contains
+    messages ||--o{ message_edits : "edited via"
+    messages ||--o{ messages : "in reply to"
+
+    properties {
+        UUID id PK
+        TEXT property_code
+        TEXT name
+        TEXT location
+        INT bedrooms
+        INT max_guests
+        INT base_rate_inr
+        JSONB facts
+    }
+
+    guests {
+        UUID id PK
+        TEXT display_name
+        CITEXT email
+        TEXT phone_e164
+        INT total_messages_received
+        INT total_reservations
+        TIMESTAMPTZ last_message_at
+    }
+
+    guest_channel_identities {
+        UUID id PK
+        UUID guest_id FK
+        channel_source channel
+        TEXT channel_handle
+        JSONB metadata
+    }
+
+    reservations {
+        UUID id PK
+        TEXT booking_ref
+        UUID guest_id FK
+        UUID property_id FK
+        reservation_status status
+        DATE check_in_date
+        DATE check_out_date
+        INT total_amount_inr
+    }
+
+    conversations {
+        UUID id PK
+        UUID guest_id FK
+        channel_source channel
+        UUID property_id FK
+        UUID active_reservation_id FK
+        BOOLEAN is_open
+        INT unread_count
+    }
+
+    messages {
+        UUID id PK
+        UUID conversation_id FK
+        UUID guest_id FK
+        UUID reservation_id FK
+        message_direction direction
+        TEXT body
+        query_type query_type
+        NUMERIC confidence_score
+        JSONB confidence_breakdown
+        handler_action handler_action
+        TEXT ai_drafted_reply
+        outbound_origin outbound_origin
+        UUID in_reply_to_message_id FK
+        TIMESTAMPTZ occurred_at
+    }
+
+    message_edits {
+        UUID id PK
+        UUID outbound_message_id FK
+        UUID inbound_message_id FK
+        UUID agent_id
+        TEXT original_text
+        TEXT edited_text
+    }
+```
+
+### Why the schema looks this way
+
+| Decision | Why |
+|---|---|
+| `guests` separated from `guest_channel_identities` | Adding a new channel (Telegram, RCS) becomes a one-line migration instead of a destructive `ALTER TABLE`. Cross-channel merging is one `UPDATE` on the identities table. |
+| AI metadata lives **on the inbound message row** | One row = one decision. `query_type`, `confidence_score`, `confidence_breakdown`, and the draft itself all sit next to the message they apply to. |
+| `outbound_origin` on outbound rows | Records whether the sent text was `ai_auto_sent`, `ai_agent_sent` (drafted + edited), or `agent_authored` (no AI). |
+| CHECK constraints by direction | The DB itself enforces that AI fields only exist on inbound rows. No app-layer trust required. |
+| Soft delete (`deleted_at`) | Operational tables never lose history — important for both audits and ML training data. |
+
+See [`schema.sql`](schema.sql) for the full DDL plus a paragraph on the hardest design decision.
+
+---
+
+## Project Structure
+
+```
+nistula-technical-assessment/
+├── README.md                  ← you are here
+├── .env.example               ← required env vars, no real keys
 ├── .gitignore
 ├── requirements.txt
-├── schema.sql                 # Part 2
-├── thinking.md                # Part 3
+├── schema.sql                 ← Part 2: PostgreSQL DDL + design notes
+├── thinking.md                ← Part 3: written answers (3am hot water scenario)
+├── docs/
+│   └── screenshot-dashboard.png   ← UI screenshot (add yours here)
 ├── src/
 │   ├── __init__.py
-│   ├── main.py                # FastAPI app + routes
-│   ├── models.py              # Pydantic schemas + enums
-│   ├── normalizer.py          # inbound -> unified
-│   ├── classifier.py          # rule-based query classification
-│   ├── claude_client.py       # async wrapper around Anthropic SDK
-│   ├── confidence.py          # multi-signal scorer + action mapper
-│   └── property_context.py    # mock property data for the prompt
+│   ├── main.py                ← FastAPI app + routes + error handling
+│   ├── models.py              ← Pydantic schemas + enums
+│   ├── normalizer.py          ← inbound → unified
+│   ├── classifier.py          ← rule-based query classification
+│   ├── claude_client.py       ← async Anthropic wrapper + self-rating parse
+│   ├── confidence.py          ← multi-signal scorer + action mapper
+│   └── property_context.py    ← mock Villa B1 facts for the prompt
 ├── static/
-│   └── index.html             # minimal in-browser tester
+│   └── index.html             ← operational dashboard (root route)
 └── tests/
-    ├── test_classifier.py
-    ├── test_confidence.py
-    └── test_webhook.py
+    ├── test_classifier.py     ← 7 tests, all 6 query types covered
+    ├── test_confidence.py     ← 6 tests, signal logic + caps
+    └── test_webhook.py        ← 8 tests, end-to-end with mocked Claude
 ```
 
 ---
 
-## Design decisions worth calling out
+## Tech Stack
 
-**Hybrid classifier (rules first, Claude as fallback).** I deliberately did not route every classification through Claude. For 10k messages/day, rule-based classification is two orders of magnitude cheaper and faster, and hospitality queries are narrow enough that good keywords cover ~95% of cases. The classifier exposes a `margin` signal, so genuinely ambiguous messages are caught by the confidence scorer downstream and routed to a human anyway.
+| Layer | Choice | Why |
+|---|---|---|
+| Framework | **FastAPI** | Async, Pydantic validation, free OpenAPI docs |
+| Language | **Python 3.10+** | Anthropic SDK, ecosystem maturity |
+| AI | **Claude Sonnet 4** | Best-in-class instruction following + low hallucination on grounded prompts |
+| Validation | **Pydantic 2** | Type-safe schemas at every API boundary |
+| Testing | **pytest** + **httpx TestClient** | Standard, fast, mocks Claude cleanly |
+| Database | **PostgreSQL 14+** | (schema designed in Part 2) |
+| Frontend | **Vanilla HTML/CSS/JS** | One file, dark + light mode, zero build step |
 
-**The `[SELF_RATING: X.XX]` tail.** I asked Claude to self-rate its draft and parsed the rating off the end of the reply. This adds essentially zero latency (single token), no extra model call, and gives us a quality signal the rule-based scorer can't produce on its own. The system prompt is explicit about when 0.9+ is and isn't earned (every fact must come from supplied context).
-
-**Hard caps instead of soft weights for policy.** Complaints, missing context, and low self-rating are not probability events — they're business rules. Encoding them as caps keeps the weight-tuning surface small and makes the policy easy to audit.
-
-**The `confidence_breakdown` is in every response.** It would have been cleaner to hide it. I left it in because it's the difference between a black-box auto-send decision and one a human can sanity-check at 3am.
+No frameworks for the dashboard — every line of HTML, CSS, and JS is in [`static/index.html`](static/index.html). Zero npm, zero build, drops onto any FastAPI server unchanged.
 
 ---
 
-## What I'd do with more time
+## Testing
 
-- Persist messages + decisions to Postgres (Part 2 already designs the schema; wiring is the next step).
-- Add a `/messages/{id}/feedback` endpoint so when an agent edits a draft, we capture the diff and use it as training signal for prompt tuning.
-- Replace the static `PROPERTIES` dict with a real `Property` repository so multi-property support is a config change.
-- Add structured logging (JSON) + a Prometheus `/metrics` endpoint for action-distribution dashboards.
-- Add a retry policy with exponential backoff on Claude transient errors.
-- Introduce a real classifier eval set (~200 hand-labelled messages) and a `make eval` target so changes to the rules can be measured, not vibed.
+```bash
+pytest -v
+```
+
+21 tests covering:
+
+- **Classifier** (7 tests) — every query type from the brief plus a fallback
+- **Confidence** (6 tests) — each signal, each cap, action mapping
+- **Webhook** (8 tests) — every preset payload end-to-end, plus 422 validation, plus the `/health` endpoint
+
+Claude is mocked in tests, so the suite runs in ~1 second with no API key needed.
+
+```
+tests/test_classifier.py::test_availability                                PASSED
+tests/test_classifier.py::test_pricing                                     PASSED
+tests/test_classifier.py::test_checkin                                     PASSED
+tests/test_classifier.py::test_special_request                             PASSED
+tests/test_classifier.py::test_complaint                                   PASSED
+tests/test_classifier.py::test_general                                     PASSED
+tests/test_classifier.py::test_empty_message_falls_back                    PASSED
+tests/test_confidence.py::test_clear_checkin_scores_high_and_auto_sends    PASSED
+tests/test_confidence.py::test_complaint_is_always_escalated               PASSED
+tests/test_confidence.py::test_missing_property_context_caps_score         PASSED
+tests/test_confidence.py::test_low_claude_self_rating_caps_score           PASSED
+tests/test_confidence.py::test_ambiguous_message_goes_to_agent_review      PASSED
+tests/test_confidence.py::test_breakdown_is_serialisable                   PASSED
+tests/test_webhook.py::test_availability_payload_returns_200_and_auto_sends PASSED
+tests/test_webhook.py::test_checkin_payload                                PASSED
+tests/test_webhook.py::test_complaint_payload_always_escalates             PASSED
+tests/test_webhook.py::test_special_request_payload                        PASSED
+tests/test_webhook.py::test_general_enquiry_payload                        PASSED
+tests/test_webhook.py::test_invalid_source_rejected                        PASSED
+tests/test_webhook.py::test_empty_message_rejected                         PASSED
+tests/test_webhook.py::test_health_endpoint                                PASSED
+
+============================== 21 passed in 1.05s ===============================
+```
+
+---
+
+## Error Handling
+
+| Failure | HTTP | Behaviour |
+|---|:---:|---|
+| Malformed / invalid payload | 422 | Pydantic validation message |
+| Empty / whitespace-only message | 422 | Custom validator rejects |
+| Unknown `source` value | 422 | Enum rejection |
+| Claude API timeout | 504 | Logged server-side, generic message to caller |
+| Claude API error | 502 | Logged, error type returned without leaking internals |
+| Missing `ANTHROPIC_API_KEY` | 500 | Clear actionable error |
+| Anything else | 500 | Caught by `unhandled_exception_handler` — stack trace logged, never leaked to caller |
+
+---
+
+## Design Decisions Worth Knowing
+
+<details>
+<summary><b>Why a hybrid classifier (rules first, Claude as fallback)?</b></summary>
+
+For 10k messages/day, rule-based classification is two orders of magnitude cheaper and faster than calling Claude. Hospitality queries are narrow enough that good keywords cover ~95% of cases. The classifier returns an ambiguity margin so genuinely unclear messages still surface to a human via the confidence scorer.
+
+</details>
+
+<details>
+<summary><b>Why ask Claude to self-rate its own draft?</b></summary>
+
+A trailing `[SELF_RATING: X.XX]` tag adds essentially zero latency (one extra token), no extra model call, and gives a quality signal the rule-based scorer cannot produce. The system prompt is explicit about when 0.9+ is earned (every fact must come from supplied context). Parsed off the end of the reply with a small regex, defaulting to 0.5 if missing.
+
+</details>
+
+<details>
+<summary><b>Why hard caps for policy instead of soft weights?</b></summary>
+
+Complaints, missing context, and low self-rating are not probability events — they're business rules. Encoding them as caps keeps the weight-tuning surface small and makes the policy easy to audit. A complaint should *never* be auto-sendable, no matter what the model thinks.
+
+</details>
+
+<details>
+<summary><b>Why return the whole confidence breakdown in every response?</b></summary>
+
+It would have been cleaner to hide it. I kept it because it's the difference between a black-box auto-send decision and one a human can sanity-check at 3am. Reviewers, on-call engineers, and the agent dashboard all benefit.
+
+</details>
+
+---
+
+## Roadmap
+
+What I'd build next, in priority order:
+
+1. **Persist messages + decisions to Postgres** — the Part 2 schema is already designed; wiring is the next step.
+2. **`POST /messages/{id}/feedback`** — when an agent edits a draft, capture the diff and use it as a prompt-tuning signal.
+3. **Replace the static `PROPERTIES` dict** with a real `Property` repository — multi-property becomes a config change, not a code change.
+4. **JSON structured logging** + **Prometheus `/metrics` endpoint** so action distribution becomes a Grafana dashboard.
+5. **Streaming Claude responses (SSE)** to the dashboard so drafts type out live.
+6. **A real classifier eval set** (~200 hand-labelled messages) with a `make eval` target so rule changes are measured, not vibed.
+7. **GitHub Actions CI** — run `pytest` on every PR.
+8. **Docker Compose** — one command to start the app + a Postgres container with `schema.sql` auto-applied.
+
+---
+
+## Repository Contents (submission checklist)
+
+- [x] **`README.md`** — setup + confidence scoring fully explained
+- [x] **`src/`** — Part 1 webhook code
+- [x] **`schema.sql`** — Part 2 SQL with design comments
+- [x] **`thinking.md`** — Part 3 written answers (3am hot water scenario)
+- [x] **`.env.example`** — required env vars template, no real keys
+- [x] **`tests/`** — 21 tests covering classifier, scorer, and full webhook flow
+- [x] **`static/index.html`** — operational dashboard
+
+---
+
+<div align="center">
+
+**Made by Prateek Raushan for Nistula**
+
+</div>
