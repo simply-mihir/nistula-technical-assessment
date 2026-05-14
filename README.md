@@ -9,7 +9,6 @@
 [![Claude](https://img.shields.io/badge/Claude-Sonnet_4-D4A574?logo=anthropic&logoColor=white)](https://www.anthropic.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tests](https://img.shields.io/badge/tests-21_passing-16A34A)](#testing)
-[![License](https://img.shields.io/badge/license-MIT-475569)](LICENSE)
 
 [Quick Start](#quick-start) · [Architecture](#architecture) · [API](#api) · [Confidence Scoring](#confidence-scoring) · [Schema](#database-schema)
 
