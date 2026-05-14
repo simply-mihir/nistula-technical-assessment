@@ -17,19 +17,6 @@
 
 ---
 
-## Demo UI
-
-The repository includes a lightweight operational dashboard for testing inbound guest messaging flows and visualizing classification, AI-drafted replies, confidence scoring, and escalation routing in real time.
-
-<div align="center">
-  <img src="docs/screenshot-dashboard.png" alt="Nistula operational dashboard — dark mode" width="100%" />
-  <br/>
-  <em>Operational dashboard at <code>GET /</code> — live message normalisation, classification, AI draft, and confidence scoring.</em>
-</div>
-
-> **To populate this image:** run the app (see [Quick Start](#quick-start)), open `http://localhost:8000`, send a preset message, and take a screenshot of the result. Save it as `docs/screenshot-dashboard.png`.
-
----
 
 ## Overview
 
