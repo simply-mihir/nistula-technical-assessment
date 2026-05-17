@@ -536,32 +536,7 @@ It would have been cleaner to hide it. I kept it because it's the difference bet
 
 ---
 
-## Roadmap
 
-What I'd build next, in priority order:
-
-1. **Persist messages + decisions to Postgres** — the Part 2 schema is already designed; wiring is the next step.
-2. **`POST /messages/{id}/feedback`** — when an agent edits a draft, capture the diff and use it as a prompt-tuning signal.
-3. **Replace the static `PROPERTIES` dict** with a real `Property` repository — multi-property becomes a config change, not a code change.
-4. **JSON structured logging** + **Prometheus `/metrics` endpoint** so action distribution becomes a Grafana dashboard.
-5. **Streaming Claude responses (SSE)** to the dashboard so drafts type out live.
-6. **A real classifier eval set** (~200 hand-labelled messages) with a `make eval` target so rule changes are measured, not vibed.
-7. **GitHub Actions CI** — run `pytest` on every PR.
-8. **Docker Compose** — one command to start the app + a Postgres container with `schema.sql` auto-applied.
-
----
-
-## Repository Contents (submission checklist)
-
-- [x] **`README.md`** — setup + confidence scoring fully explained
-- [x] **`src/`** — Part 1 webhook code
-- [x] **`schema.sql`** — Part 2 SQL with design comments
-- [x] **`thinking.md`** — Part 3 written answers (3am hot water scenario)
-- [x] **`.env.example`** — required env vars template, no real keys
-- [x] **`tests/`** — 21 tests covering classifier, scorer, and full webhook flow
-- [x] **`static/index.html`** — operational dashboard
-
----
 
 <div align="center">
 
