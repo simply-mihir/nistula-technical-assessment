@@ -409,8 +409,8 @@ nistula-technical-assessment/
 ├── .env.example               ← required env vars, no real keys
 ├── .gitignore
 ├── requirements.txt
-├── schema.sql                 ← Part 2: PostgreSQL DDL + design notes
-├── thinking.md                ← Part 3: written answers (3am hot water scenario)
+├── schema.sql                 ← PostgreSQL DDL + design notes
+├── thinking.md                ← written answers (3am hot water scenario)
 ├── docs/
 │   └── screenshot-dashboard.png   ← UI screenshot (add yours here)
 ├── src/
