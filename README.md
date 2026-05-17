@@ -411,8 +411,6 @@ nistula-technical-assessment/
 ├── requirements.txt
 ├── schema.sql                 ← PostgreSQL DDL + design notes
 ├── thinking.md                ← written answers (3am hot water scenario)
-├── docs/
-│   └── screenshot-dashboard.png   ← UI screenshot (add yours here)
 ├── src/
 │   ├── __init__.py
 │   ├── main.py                ← FastAPI app + routes + error handling
