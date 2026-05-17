@@ -6,9 +6,13 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Claude](https://img.shields.io/badge/Claude-Sonnet_4-D4A574?logo=anthropic&logoColor=white)](https://www.anthropic.com/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-2.9-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![Uvicorn](https://img.shields.io/badge/Uvicorn-0.30-499848?logo=gunicorn&logoColor=white)](https://www.uvicorn.org/)
+[![Claude](https://img.shields.io/badge/Claude-Sonnet_4-D97706?logo=anthropic&logoColor=white)](https://www.anthropic.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/tests-21_passing-16A34A)](#testing)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1-6BA539?logo=openapiinitiative&logoColor=white)](https://www.openapis.org/)
+[![Pytest](https://img.shields.io/badge/Pytest-21_passing-0A9EDC?logo=pytest&logoColor=white)](#testing)
+[![License](https://img.shields.io/badge/license-MIT-475569)](LICENSE)
 
 [Quick Start](#quick-start) · [Architecture](#architecture) · [API](#api) · [Confidence Scoring](#confidence-scoring) · [Schema](#database-schema)
 
