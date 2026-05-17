@@ -118,7 +118,7 @@ pytest -v
 
 #### Normalised internal schema
 
-After the normaliser runs, every message — regardless of source — looks like this internally:
+After the normaliser runs, every message regardless of source looks like this internally:
 
 ```json
 {
@@ -133,7 +133,7 @@ After the normaliser runs, every message — regardless of source — looks like
 }
 ```
 
-This proves the normalisation step actually transforms the payload — channel-specific quirks (Booking.com's nested `customer` block, Instagram's `sender_id`, etc.) get collapsed into one shape before anything else touches it.
+This proves the normalisation step actually transforms the payload channel-specific quirks (Booking.com's nested `customer` block, Instagram's `sender_id`, etc.) get collapsed into one shape before anything else touches it.
 
 #### Response
 
