@@ -460,27 +460,27 @@ pytest -v
 Claude is mocked in tests, so the suite runs in ~1 second with no API key needed.
 
 ```
-tests/test_classifier.py::test_availability                                PASSED
-tests/test_classifier.py::test_pricing                                     PASSED
-tests/test_classifier.py::test_checkin                                     PASSED
-tests/test_classifier.py::test_special_request                             PASSED
-tests/test_classifier.py::test_complaint                                   PASSED
-tests/test_classifier.py::test_general                                     PASSED
-tests/test_classifier.py::test_empty_message_falls_back                    PASSED
-tests/test_confidence.py::test_clear_checkin_scores_high_and_auto_sends    PASSED
-tests/test_confidence.py::test_complaint_is_always_escalated               PASSED
-tests/test_confidence.py::test_missing_property_context_caps_score         PASSED
-tests/test_confidence.py::test_low_claude_self_rating_caps_score           PASSED
-tests/test_confidence.py::test_ambiguous_message_goes_to_agent_review      PASSED
-tests/test_confidence.py::test_breakdown_is_serialisable                   PASSED
+tests/test_classifier.py::test_availability                                 PASSED
+tests/test_classifier.py::test_pricing                                      PASSED
+tests/test_classifier.py::test_checkin                                      PASSED
+tests/test_classifier.py::test_special_request                              PASSED
+tests/test_classifier.py::test_complaint                                    PASSED
+tests/test_classifier.py::test_general                                      PASSED
+tests/test_classifier.py::test_empty_message_falls_back                     PASSED
+tests/test_confidence.py::test_clear_checkin_scores_high_and_auto_sends     PASSED
+tests/test_confidence.py::test_complaint_is_always_escalated                PASSED
+tests/test_confidence.py::test_missing_property_context_caps_score          PASSED
+tests/test_confidence.py::test_low_claude_self_rating_caps_score            PASSED
+tests/test_confidence.py::test_ambiguous_message_goes_to_agent_review       PASSED
+tests/test_confidence.py::test_breakdown_is_serialisable                    PASSED
 tests/test_webhook.py::test_availability_payload_returns_200_and_auto_sends PASSED
-tests/test_webhook.py::test_checkin_payload                                PASSED
-tests/test_webhook.py::test_complaint_payload_always_escalates             PASSED
-tests/test_webhook.py::test_special_request_payload                        PASSED
-tests/test_webhook.py::test_general_enquiry_payload                        PASSED
-tests/test_webhook.py::test_invalid_source_rejected                        PASSED
-tests/test_webhook.py::test_empty_message_rejected                         PASSED
-tests/test_webhook.py::test_health_endpoint                                PASSED
+tests/test_webhook.py::test_checkin_payload                                 PASSED
+tests/test_webhook.py::test_complaint_payload_always_escalates              PASSED
+tests/test_webhook.py::test_special_request_payload                         PASSED
+tests/test_webhook.py::test_general_enquiry_payload                         PASSED
+tests/test_webhook.py::test_invalid_source_rejected                         PASSED
+tests/test_webhook.py::test_empty_message_rejected                          PASSED
+tests/test_webhook.py::test_health_endpoint                                 PASSED
 
 ============================== 21 passed in 1.05s ===============================
 ```
