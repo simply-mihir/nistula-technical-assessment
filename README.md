@@ -162,8 +162,8 @@ This proves the normalisation step actually transforms the payload channel-speci
 FastAPI auto-generates a full OpenAPI specification. Visit:
 
 ```
-http://localhost:8000/docs        ← Swagger UI (try-it-out)
-http://localhost:8000/redoc       ← ReDoc (read-friendly)
+http://localhost:8000/docs         ← Swagger UI (try-it-out)
+http://localhost:8000/redoc        ← ReDoc (read-friendly)
 http://localhost:8000/openapi.json ← raw OpenAPI 3.1 spec
 ```
 
@@ -235,7 +235,7 @@ claude_self_rating      0.35  ×  0.70    =   0.245
 ─────────────────────────────────────────────────────
 RAW SCORE                                    0.865
 
-Caps applied            complaint_cap     →   0.55
+Caps applied            complaint_cap     →  0.55
 FINAL SCORE                                  0.55   →   escalate
 ```
 
