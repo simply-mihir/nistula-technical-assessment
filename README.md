@@ -24,7 +24,7 @@ Nistula receives guest messages across **WhatsApp**, **Booking.com**, **Airbnb**
 | Stage   | What happens |
 |-------|---|
 | **1. Ingest** | Webhook accepts a channel-specific payload at `POST /webhook/message` |
-| **2. Normalise**  | Channel quirks stripped — all messages collapse to one internal schema |
+| **2. Normalise** | Channel quirks stripped — all messages collapse to one internal schema |
 | **3. Classify** | Rule-based scorer assigns one of six query types (`complaint`, `pre_sales_availability`, etc.) |
 | **4. Draft** | Claude generates a contextual reply grounded in property facts |
 | **5. Score** | Four-signal confidence pipeline produces a `0.00 – 1.00` score |
