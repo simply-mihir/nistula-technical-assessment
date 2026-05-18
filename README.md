@@ -269,17 +269,17 @@ The full breakdown ships in every response under `confidence_breakdown`, so on-c
 Every request produces three structured log lines so you can trace the full pipeline:
 
 ```
-2026-05-12 03:00:14 |  INFO  | nistula | Inbound | source=whatsapp guest=Vikram Bose property=villa-b1 msg='There is no hot water and we have guests arriving for breakfast in 4 hours.'
-2026-05-12 03:00:14 |  INFO  | nistula | Classified | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 query_type=complaint margin=6.00 matches=4
-2026-05-12 03:00:16 |  INFO  | nistula | Scored | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 final=0.55 action=escalate caps=['complaint_cap']
+2026-05-12 03:00:14 |  INFO  | nistula |   Inbound    | source=whatsapp guest=Vikram Bose property=villa-b1 msg='There is no hot water and we have guests arriving for breakfast in 4 hours.'
+2026-05-12 03:00:14 |  INFO  | nistula |  Classified  | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 query_type=complaint margin=6.00 matches=4
+2026-05-12 03:00:16 |  INFO  | nistula |   Scored     | id=8c0d1a4d-2c0e-4f7d-9c0d-87f4a1d3b9e2 final=0.55 action=escalate caps=['complaint_cap']
 ```
 
 And for a clean pre-sales enquiry:
 
 ```
-2026-05-12 10:30:00 |  INFO  | nistula | Inbound | source=whatsapp guest=Rahul Sharma property=villa-b1 msg='Is the villa available from April 20 to 24?'
-2026-05-12 10:30:00 |  INFO  | nistula | Classified | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d query_type=pre_sales_availability margin=4.00 matches=3
-2026-05-12 10:30:02 |  INFO  | nistula | Scored | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d final=0.91 action=auto_send caps=[]
+2026-05-12 10:30:00 |  INFO  | nistula |   Inbound    | source=whatsapp guest=Rahul Sharma property=villa-b1 msg='Is the villa available from April 20 to 24?'
+2026-05-12 10:30:00 |  INFO  | nistula |  Classified  | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d query_type=pre_sales_availability margin=4.00 matches=3
+2026-05-12 10:30:02 |  INFO  | nistula |   Scored     | id=4a1b3c5d-7e9f-4a2b-9c3d-1e5f7a9b0c2d final=0.91 action=auto_send caps=[]
 ```
 
 The log format is set in `src/main.py`:
