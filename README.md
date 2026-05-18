@@ -165,9 +165,9 @@ This proves the normalisation step actually transforms the payload channel-speci
 FastAPI auto-generates a full OpenAPI specification. Visit:
 
 ```
-http://localhost:8000/docs         ← Swagger UI (try-it-out)
-http://localhost:8000/redoc        ← ReDoc (read-friendly)
-http://localhost:8000/openapi.json ← raw OpenAPI 3.1 spec
+http://localhost:8000/docs              ← Swagger UI (try-it-out)
+http://localhost:8000/redoc             ← ReDoc (read-friendly)
+http://localhost:8000/openapi.json      ← raw OpenAPI 3.1 spec
 ```
 
 ---
@@ -408,27 +408,27 @@ See [`schema.sql`](schema.sql) for the full DDL plus a paragraph on the hardest 
 
 ```
 nistula-technical-assessment/
-├── README.md                  ← you are here
-├── .env.example               ← required env vars, no real keys
+├── README.md                    ← you are here
+├── .env.example                 ← required env vars, no real keys
 ├── .gitignore
 ├── requirements.txt
-├── schema.sql                 ← PostgreSQL DDL + design notes
-├── thinking.md                ← written answers (3am hot water scenario)
+├── schema.sql                   ← PostgreSQL DDL + design notes
+├── thinking.md                  ← written answers (3am hot water scenario)
 ├── src/
 │   ├── __init__.py
-│   ├── main.py                ← FastAPI app + routes + error handling
-│   ├── models.py              ← Pydantic schemas + enums
-│   ├── normalizer.py          ← inbound → unified
-│   ├── classifier.py          ← rule-based query classification
-│   ├── claude_client.py       ← async Anthropic wrapper + self-rating parse
-│   ├── confidence.py          ← multi-signal scorer + action mapper
-│   └── property_context.py    ← mock Villa B1 facts for the prompt
+│   ├── main.py                  ← FastAPI app + routes + error handling
+│   ├── models.py                ← Pydantic schemas + enums
+│   ├── normalizer.py            ← inbound → unified
+│   ├── classifier.py            ← rule-based query classification
+│   ├── claude_client.py         ← async Anthropic wrapper + self-rating parse
+│   ├── confidence.py            ← multi-signal scorer + action mapper
+│   └── property_context.py      ← mock Villa B1 facts for the prompt
 ├── static/
-│   └── index.html             ← operational dashboard (root route)
+│   └── index.html               ← operational dashboard (root route)
 └── tests/
-    ├── test_classifier.py     ← 7 tests, all 6 query types covered
-    ├── test_confidence.py     ← 6 tests, signal logic + caps
-    └── test_webhook.py        ← 8 tests, end-to-end with mocked Claude
+    ├── test_classifier.py       ← 7 tests, all 6 query types covered
+    ├── test_confidence.py       ← 6 tests, signal logic + caps
+    └── test_webhook.py          ← 8 tests, end-to-end with mocked Claude
 ```
 
 ---
